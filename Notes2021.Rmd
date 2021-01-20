@@ -1,0 +1,71 @@
+---
+title: "Econometrics II Notes 20201"
+author: "James Bland"
+date: "1/20/2021"
+output:
+  bookdown::gitbook: default
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Limited dependent variable models
+
+## Some example data
+
+```{r loadTirtanic}
+library(dplyr)
+D<-(data.frame(read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/carData/TitanicSurvival.csv"))
+)
+
+DSummary<-D %>% group_by(sex,age,passengerClass) %>% summarize(fracSurvived = mean(1*(survived=="yes")),n=n(),.groups=NULL)
+
+knitr::kable(head(DSummary))
+```
+
+```{r PlotTitanic,cache=T}
+library(ggplot2)
+(ggplot(DSummary ,aes(y=fracSurvived,x=age,color=sex,shape=passengerClass,size=n))
+  +geom_point()
+ +theme_bw()
+  +xlab("Age")
+  +ylab("Fraction survived")
+  +theme_bw()
+)
+```
+
+## Analyzing with linear regression
+
+```{r linreg}
+
+reg1<-lm(factor(survived) ~ age + factor(passengerClass)+factor(sex),data=D)
+
+print(reg1)
+
+```
+
+```{r PlotTitanicLinear,cache=T}
+
+(ggplot(DSummary ,aes(y=fracSurvived,x=age,color=sex,shape=passengerClass,size=n))
+  +geom_smooth(method="lm")
+  +geom_point()
+ +theme_bw()
+  +xlab("Age")
+  +ylab("Fraction survived")
+  +theme_bw()
+)
+```
+
+```{r TitanicMale}
+
+(
+  ggplot(data=(D %>% filter(sex=="male")), aes(x=age,y=factor(survived),group=paste(factor(age<18),passengerClass),color=passengerClass))
+  +geom_point()
+  +geom_smooth(method="lm")
+  +theme_bw()
+  +labs(title="Titanic survival (males only)")
+)
+
+```

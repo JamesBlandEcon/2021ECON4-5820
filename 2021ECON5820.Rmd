@@ -1,0 +1,27 @@
+---
+title: "Econometrics II Notes 2021 (5820)"
+author: "James Bland"
+date: "1/20/2021"
+output:
+  bookdown::gitbook: default
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Behavioral econometrics
+
+## Example dataset
+
+```{r}
+library(foreign)
+Hey2001<- read.csv("../2021ECON5820/Hey2001.csv")
+
+knitr::kable(head(Hey2001))
+```
+
+* decisions over 2 lotteries. $p$ or $q$
+* $y=1$ iff $i$ chooses the q-lottery in decision $t$
+* prizes: 0, 25, 50, 75 pounds
