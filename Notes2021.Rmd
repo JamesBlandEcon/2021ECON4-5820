@@ -1,14 +1,14 @@
 ---
 title: "Econometrics II Notes 20201"
 author: "James Bland"
-date: "1/20/2021"
+date: "Spring 2021"
 output:
   bookdown::gitbook: default
 ---
 
 ```{r setup, include=FALSE}
 library(ggplot2)
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE)
 ```
 
 # Limited dependent variable models
@@ -20,7 +20,7 @@ library(dplyr)
 D<-(data.frame(read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/carData/TitanicSurvival.csv"))
 )
 
-DSummary<-D %>% group_by(sex,age,passengerClass) %>% summarize(fracSurvived = mean(1*(survived=="yes")),n=n(),.groups=NULL)
+DSummary<-D %>% group_by(sex,age,passengerClass) %>% summarize(fracSurvived = mean(1*(survived=="yes")),n=n())
 
 knitr::kable(head(DSummary))
 ```
@@ -38,11 +38,24 @@ library(ggplot2)
 
 ## Analyzing with linear regression
 
-```{r linreg}
+```{r linreg, results="asis"}
 
-reg1<-lm(factor(survived) ~ age + factor(passengerClass)+factor(sex),data=D)
+D <- (D
+  %>% mutate(adult = 1*(age>=18),
+             class2 = 1*(passengerClass=="2nd"),
+             class3 = 1*(passengerClass=="3rd"),
+             male = 1*(sex=="male"),
+             S = 1*(survived=="yes")
+             )
+)
 
-print(reg1)
+reg1<-lm(S ~ age + sex+class2+class3,data=D)
+reg2<-lm(S ~ age + adult+ sex+class2+class3,data=D)
+reg3<-lm(S ~ age + adult +adult*male + sex + class2 + class3,data=D)
+
+
+library(stargazer)
+stargazer(reg1,reg2,reg3,type="html")
 
 ```
 
