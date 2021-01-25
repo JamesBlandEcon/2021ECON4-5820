@@ -8,7 +8,7 @@ output:
 
 ```{r setup, include=FALSE}
 library(ggplot2)
-knitr::opts_chunk$set(echo = TRUE,warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message=FALSE,cache=TRUE)
 ```
 
 # Limited dependent variable models
@@ -49,9 +49,9 @@ D <- (D
              )
 )
 
-reg1<-lm(S ~ age + sex+class2+class3,data=D)
-reg2<-lm(S ~ age + adult+ sex+class2+class3,data=D)
-reg3<-lm(S ~ age + adult +adult*male + sex + class2 + class3,data=D)
+reg1<-lm(S ~ age + male+class2+class3,data=D)
+reg2<-lm(S ~ age + adult+ male+class2+class3,data=D)
+reg3<-lm(S ~ age + adult +adult*male + male + class2 + class3,data=D)
 
 
 library(stargazer)
@@ -71,14 +71,45 @@ stargazer(reg1,reg2,reg3,type="html")
 )
 ```
 
+## Focusing on males only
+
 ```{r TitanicMale}
 
 (
-  ggplot(data=(D %>% filter(sex=="male")), aes(x=age,y=factor(survived),group=paste(factor(age<18),passengerClass),color=passengerClass))
-  +geom_point()
-  +geom_smooth(method="lm")
+  ggplot(data=(D %>% filter(sex=="male")), aes(x=age,y=1*(survived=="yes"),group=paste(factor(age<18),passengerClass),color=passengerClass))
+  +geom_smooth(method="lm",formula = y~ x + (1*(x<18)))
+  +geom_point(data=(DSummary %>% filter(sex=="male")) ,aes(y=fracSurvived,x=age,color=passengerClass,size=n))
+  
   +theme_bw()
   +labs(title="Titanic survival (males only)")
 )
 
 ```
+
+```{r,results="asis"}
+Dmale<-(D%>%filter(sex=="male")
+         %>% mutate(AgeMinus18 = age-18)
+)
+
+reg1<-lm(S ~ AgeMinus18 + class2+class3,data=Dmale)
+reg2<-lm(S ~ AgeMinus18 + adult+class2+class3,data=Dmale)
+reg3<-lm(S ~ AgeMinus18 + adult +AgeMinus18*adult+ class2 + class3,data=Dmale)
+
+stargazer(reg1,reg2,reg3,type="html")
+fitted<-(reg3$fitted.values)
+(
+  ggplot(data=data.frame(fitted),aes(x=fitted))
+  +geom_histogram(bins=20)
+  +theme_bw()
+  +geom_vline(xintercept=0)
+)
+
+```
+
+```{r,results="asis"}
+probit1<-glm(S ~ AgeMinus18 + class2+class3,data=Dmale,family=binomial(link="probit"))
+probit2<-glm(S ~ AgeMinus18+adult*(AgeMinus18) + adult+ class2+class3,data=Dmale,family=binomial(link="probit"))
+
+stargazer(probit1,probit2,type="html")
+```
+

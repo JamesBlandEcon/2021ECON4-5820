@@ -50,6 +50,8 @@
 
 
 <script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
 
 
 <style type="text/css">
@@ -132,6 +134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1" data-path=""><a href="#limited-dependent-variable-models"><i class="fa fa-check"></i><b>1</b> Limited dependent variable models</a><ul>
 <li class="chapter" data-level="1.1" data-path=""><a href="#some-example-data"><i class="fa fa-check"></i><b>1.1</b> Some example data</a></li>
 <li class="chapter" data-level="1.2" data-path=""><a href="#analyzing-with-linear-regression"><i class="fa fa-check"></i><b>1.2</b> Analyzing with linear regression</a></li>
+<li class="chapter" data-level="1.3" data-path=""><a href="#focusing-on-males-only"><i class="fa fa-check"></i><b>1.3</b> Focusing on males only</a></li>
 </ul></li>
 </ul>
 
@@ -159,21 +162,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">1</span> Limited dependent variable models</h1>
 <div id="some-example-data" class="section level2">
 <h2><span class="header-section-number">1.1</span> Some example data</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(dplyr)</span></code></pre></div>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>D&lt;-(<span class="kw">data.frame</span>(<span class="kw">read.csv</span>(<span class="st">&quot;https://vincentarelbundock.github.io/Rdatasets/csv/carData/TitanicSurvival.csv&quot;</span>))</span>
-<span id="cb5-2"><a href="#cb5-2"></a>)</span>
-<span id="cb5-3"><a href="#cb5-3"></a></span>
-<span id="cb5-4"><a href="#cb5-4"></a>DSummary&lt;-D <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(sex,age,passengerClass) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize</span>(<span class="dt">fracSurvived =</span> <span class="kw">mean</span>(<span class="dv">1</span><span class="op">*</span>(survived<span class="op">==</span><span class="st">&quot;yes&quot;</span>)),<span class="dt">n=</span><span class="kw">n</span>())</span></code></pre></div>
-<pre><code>## `summarise()` has grouped output by &#39;sex&#39;, &#39;age&#39;. You can override using the `.groups` argument.</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(DSummary))</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2"></a>D&lt;-(<span class="kw">data.frame</span>(<span class="kw">read.csv</span>(<span class="st">&quot;https://vincentarelbundock.github.io/Rdatasets/csv/carData/TitanicSurvival.csv&quot;</span>))</span>
+<span id="cb1-3"><a href="#cb1-3"></a>)</span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a>DSummary&lt;-D <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">group_by</span>(sex,age,passengerClass) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">summarize</span>(<span class="dt">fracSurvived =</span> <span class="kw">mean</span>(<span class="dv">1</span><span class="op">*</span>(survived<span class="op">==</span><span class="st">&quot;yes&quot;</span>)),<span class="dt">n=</span><span class="kw">n</span>())</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(DSummary))</span></code></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -229,38 +224,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>(<span class="kw">ggplot</span>(DSummary ,<span class="kw">aes</span>(<span class="dt">y=</span>fracSurvived,<span class="dt">x=</span>age,<span class="dt">color=</span>sex,<span class="dt">shape=</span>passengerClass,<span class="dt">size=</span>n))</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  <span class="op">+</span><span class="kw">geom_point</span>()</span>
-<span id="cb8-4"><a href="#cb8-4"></a> <span class="op">+</span><span class="kw">theme_bw</span>()</span>
-<span id="cb8-5"><a href="#cb8-5"></a>  <span class="op">+</span><span class="kw">xlab</span>(<span class="st">&quot;Age&quot;</span>)</span>
-<span id="cb8-6"><a href="#cb8-6"></a>  <span class="op">+</span><span class="kw">ylab</span>(<span class="st">&quot;Fraction survived&quot;</span>)</span>
-<span id="cb8-7"><a href="#cb8-7"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
-<span id="cb8-8"><a href="#cb8-8"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>(<span class="kw">ggplot</span>(DSummary ,<span class="kw">aes</span>(<span class="dt">y=</span>fracSurvived,<span class="dt">x=</span>age,<span class="dt">color=</span>sex,<span class="dt">shape=</span>passengerClass,<span class="dt">size=</span>n))</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="op">+</span><span class="kw">geom_point</span>()</span>
+<span id="cb2-4"><a href="#cb2-4"></a> <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="op">+</span><span class="kw">xlab</span>(<span class="st">&quot;Age&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="op">+</span><span class="kw">ylab</span>(<span class="st">&quot;Fraction survived&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb2-8"><a href="#cb2-8"></a>)</span></code></pre></div>
 <p><img src="Notes2021_files/figure-html/PlotTitanic-1.png" width="672" /></p>
 </div>
 <div id="analyzing-with-linear-regression" class="section level2">
 <h2><span class="header-section-number">1.2</span> Analyzing with linear regression</h2>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>D &lt;-<span class="st"> </span>(D</span>
-<span id="cb9-2"><a href="#cb9-2"></a>  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">adult =</span> <span class="dv">1</span><span class="op">*</span>(age<span class="op">&gt;=</span><span class="dv">18</span>),</span>
-<span id="cb9-3"><a href="#cb9-3"></a>             <span class="dt">class2 =</span> <span class="dv">1</span><span class="op">*</span>(passengerClass<span class="op">==</span><span class="st">&quot;2nd&quot;</span>),</span>
-<span id="cb9-4"><a href="#cb9-4"></a>             <span class="dt">class3 =</span> <span class="dv">1</span><span class="op">*</span>(passengerClass<span class="op">==</span><span class="st">&quot;3rd&quot;</span>),</span>
-<span id="cb9-5"><a href="#cb9-5"></a>             <span class="dt">male =</span> <span class="dv">1</span><span class="op">*</span>(sex<span class="op">==</span><span class="st">&quot;male&quot;</span>),</span>
-<span id="cb9-6"><a href="#cb9-6"></a>             <span class="dt">S =</span> <span class="dv">1</span><span class="op">*</span>(survived<span class="op">==</span><span class="st">&quot;yes&quot;</span>)</span>
-<span id="cb9-7"><a href="#cb9-7"></a>             )</span>
-<span id="cb9-8"><a href="#cb9-8"></a>)</span>
-<span id="cb9-9"><a href="#cb9-9"></a></span>
-<span id="cb9-10"><a href="#cb9-10"></a>reg1&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>sex<span class="op">+</span>class2<span class="op">+</span>class3,<span class="dt">data=</span>D)</span>
-<span id="cb9-11"><a href="#cb9-11"></a>reg2&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>adult<span class="op">+</span><span class="st"> </span>sex<span class="op">+</span>class2<span class="op">+</span>class3,<span class="dt">data=</span>D)</span>
-<span id="cb9-12"><a href="#cb9-12"></a>reg3&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>adult <span class="op">+</span>adult<span class="op">*</span>male <span class="op">+</span><span class="st"> </span>sex <span class="op">+</span><span class="st"> </span>class2 <span class="op">+</span><span class="st"> </span>class3,<span class="dt">data=</span>D)</span>
-<span id="cb9-13"><a href="#cb9-13"></a></span>
-<span id="cb9-14"><a href="#cb9-14"></a></span>
-<span id="cb9-15"><a href="#cb9-15"></a><span class="kw">library</span>(stargazer)</span></code></pre></div>
-<pre><code>## 
-## Please cite as:</code></pre>
-<pre><code>##  Hlavac, Marek (2018). stargazer: Well-Formatted Regression and Summary Statistics Tables.</code></pre>
-<pre><code>##  R package version 5.2.2. https://CRAN.R-project.org/package=stargazer</code></pre>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">stargazer</span>(reg1,reg2,reg3,<span class="dt">type=</span><span class="st">&quot;html&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>D &lt;-<span class="st"> </span>(D</span>
+<span id="cb3-2"><a href="#cb3-2"></a>  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">adult =</span> <span class="dv">1</span><span class="op">*</span>(age<span class="op">&gt;=</span><span class="dv">18</span>),</span>
+<span id="cb3-3"><a href="#cb3-3"></a>             <span class="dt">class2 =</span> <span class="dv">1</span><span class="op">*</span>(passengerClass<span class="op">==</span><span class="st">&quot;2nd&quot;</span>),</span>
+<span id="cb3-4"><a href="#cb3-4"></a>             <span class="dt">class3 =</span> <span class="dv">1</span><span class="op">*</span>(passengerClass<span class="op">==</span><span class="st">&quot;3rd&quot;</span>),</span>
+<span id="cb3-5"><a href="#cb3-5"></a>             <span class="dt">male =</span> <span class="dv">1</span><span class="op">*</span>(sex<span class="op">==</span><span class="st">&quot;male&quot;</span>),</span>
+<span id="cb3-6"><a href="#cb3-6"></a>             <span class="dt">S =</span> <span class="dv">1</span><span class="op">*</span>(survived<span class="op">==</span><span class="st">&quot;yes&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>             )</span>
+<span id="cb3-8"><a href="#cb3-8"></a>)</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>reg1&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>male<span class="op">+</span>class2<span class="op">+</span>class3,<span class="dt">data=</span>D)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>reg2&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>adult<span class="op">+</span><span class="st"> </span>male<span class="op">+</span>class2<span class="op">+</span>class3,<span class="dt">data=</span>D)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>reg3&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>age <span class="op">+</span><span class="st"> </span>adult <span class="op">+</span>adult<span class="op">*</span>male <span class="op">+</span><span class="st"> </span>male <span class="op">+</span><span class="st"> </span>class2 <span class="op">+</span><span class="st"> </span>class3,<span class="dt">data=</span>D)</span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a></span>
+<span id="cb3-15"><a href="#cb3-15"></a><span class="kw">library</span>(stargazer)</span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="kw">stargazer</span>(reg1,reg2,reg3,<span class="dt">type=</span><span class="st">&quot;html&quot;</span>)</span></code></pre></div>
 <table style="text-align:center">
 <tr>
 <td colspan="4" style="border-bottom: 1px solid black">
@@ -380,8 +371,10 @@ adult
 male
 </td>
 <td>
+-0.491<sup>***</sup>
 </td>
 <td>
+-0.490<sup>***</sup>
 </td>
 <td>
 -0.296<sup>***</sup>
@@ -391,46 +384,13 @@ male
 <td style="text-align:left">
 </td>
 <td>
+(0.026)
 </td>
 <td>
+(0.026)
 </td>
 <td>
 (0.063)
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-sexmale
-</td>
-<td>
--0.491<sup>***</sup>
-</td>
-<td>
--0.490<sup>***</sup>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.026)
-</td>
-<td>
-(0.026)
-</td>
-<td>
 </td>
 </tr>
 <tr>
@@ -674,23 +634,652 @@ F Statistic
 </td>
 </tr>
 </table>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>(<span class="kw">ggplot</span>(DSummary ,<span class="kw">aes</span>(<span class="dt">y=</span>fracSurvived,<span class="dt">x=</span>age,<span class="dt">color=</span>sex,<span class="dt">shape=</span>passengerClass,<span class="dt">size=</span>n))</span>
-<span id="cb14-2"><a href="#cb14-2"></a>  <span class="op">+</span><span class="kw">geom_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>)</span>
-<span id="cb14-3"><a href="#cb14-3"></a>  <span class="op">+</span><span class="kw">geom_point</span>()</span>
-<span id="cb14-4"><a href="#cb14-4"></a> <span class="op">+</span><span class="kw">theme_bw</span>()</span>
-<span id="cb14-5"><a href="#cb14-5"></a>  <span class="op">+</span><span class="kw">xlab</span>(<span class="st">&quot;Age&quot;</span>)</span>
-<span id="cb14-6"><a href="#cb14-6"></a>  <span class="op">+</span><span class="kw">ylab</span>(<span class="st">&quot;Fraction survived&quot;</span>)</span>
-<span id="cb14-7"><a href="#cb14-7"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
-<span id="cb14-8"><a href="#cb14-8"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>(<span class="kw">ggplot</span>(DSummary ,<span class="kw">aes</span>(<span class="dt">y=</span>fracSurvived,<span class="dt">x=</span>age,<span class="dt">color=</span>sex,<span class="dt">shape=</span>passengerClass,<span class="dt">size=</span>n))</span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="op">+</span><span class="kw">geom_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3"></a>  <span class="op">+</span><span class="kw">geom_point</span>()</span>
+<span id="cb4-4"><a href="#cb4-4"></a> <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb4-5"><a href="#cb4-5"></a>  <span class="op">+</span><span class="kw">xlab</span>(<span class="st">&quot;Age&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6"></a>  <span class="op">+</span><span class="kw">ylab</span>(<span class="st">&quot;Fraction survived&quot;</span>)</span>
+<span id="cb4-7"><a href="#cb4-7"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb4-8"><a href="#cb4-8"></a>)</span></code></pre></div>
 <p><img src="Notes2021_files/figure-html/PlotTitanicLinear-1.png" width="672" /></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a>(</span>
-<span id="cb15-2"><a href="#cb15-2"></a>  <span class="kw">ggplot</span>(<span class="dt">data=</span>(D <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(sex<span class="op">==</span><span class="st">&quot;male&quot;</span>)), <span class="kw">aes</span>(<span class="dt">x=</span>age,<span class="dt">y=</span><span class="kw">factor</span>(survived),<span class="dt">group=</span><span class="kw">paste</span>(<span class="kw">factor</span>(age<span class="op">&lt;</span><span class="dv">18</span>),passengerClass),<span class="dt">color=</span>passengerClass))</span>
-<span id="cb15-3"><a href="#cb15-3"></a>  <span class="op">+</span><span class="kw">geom_point</span>()</span>
-<span id="cb15-4"><a href="#cb15-4"></a>  <span class="op">+</span><span class="kw">geom_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>)</span>
-<span id="cb15-5"><a href="#cb15-5"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
-<span id="cb15-6"><a href="#cb15-6"></a>  <span class="op">+</span><span class="kw">labs</span>(<span class="dt">title=</span><span class="st">&quot;Titanic survival (males only)&quot;</span>)</span>
-<span id="cb15-7"><a href="#cb15-7"></a>)</span></code></pre></div>
+</div>
+<div id="focusing-on-males-only" class="section level2">
+<h2><span class="header-section-number">1.3</span> Focusing on males only</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>(</span>
+<span id="cb5-2"><a href="#cb5-2"></a>  <span class="kw">ggplot</span>(<span class="dt">data=</span>(D <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(sex<span class="op">==</span><span class="st">&quot;male&quot;</span>)), <span class="kw">aes</span>(<span class="dt">x=</span>age,<span class="dt">y=</span><span class="dv">1</span><span class="op">*</span>(survived<span class="op">==</span><span class="st">&quot;yes&quot;</span>),<span class="dt">group=</span><span class="kw">paste</span>(<span class="kw">factor</span>(age<span class="op">&lt;</span><span class="dv">18</span>),passengerClass),<span class="dt">color=</span>passengerClass))</span>
+<span id="cb5-3"><a href="#cb5-3"></a>  <span class="op">+</span><span class="kw">geom_smooth</span>(<span class="dt">method=</span><span class="st">&quot;lm&quot;</span>,<span class="dt">formula =</span> y<span class="op">~</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">*</span>(x<span class="op">&lt;</span><span class="dv">18</span>)))</span>
+<span id="cb5-4"><a href="#cb5-4"></a>  <span class="op">+</span><span class="kw">geom_point</span>(<span class="dt">data=</span>(DSummary <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(sex<span class="op">==</span><span class="st">&quot;male&quot;</span>)) ,<span class="kw">aes</span>(<span class="dt">y=</span>fracSurvived,<span class="dt">x=</span>age,<span class="dt">color=</span>passengerClass,<span class="dt">size=</span>n))</span>
+<span id="cb5-5"><a href="#cb5-5"></a>  </span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="op">+</span><span class="kw">labs</span>(<span class="dt">title=</span><span class="st">&quot;Titanic survival (males only)&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8"></a>)</span></code></pre></div>
 <p><img src="Notes2021_files/figure-html/TitanicMale-1.png" width="672" /></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>Dmale&lt;-(D<span class="op">%&gt;%</span><span class="kw">filter</span>(sex<span class="op">==</span><span class="st">&quot;male&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2"></a>         <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">AgeMinus18 =</span> age<span class="dv">-18</span>)</span>
+<span id="cb6-3"><a href="#cb6-3"></a>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a>reg1&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>AgeMinus18 <span class="op">+</span><span class="st"> </span>class2<span class="op">+</span>class3,<span class="dt">data=</span>Dmale)</span>
+<span id="cb6-6"><a href="#cb6-6"></a>reg2&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>AgeMinus18 <span class="op">+</span><span class="st"> </span>adult<span class="op">+</span>class2<span class="op">+</span>class3,<span class="dt">data=</span>Dmale)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>reg3&lt;-<span class="kw">lm</span>(S <span class="op">~</span><span class="st"> </span>AgeMinus18 <span class="op">+</span><span class="st"> </span>adult <span class="op">+</span>AgeMinus18<span class="op">*</span>adult<span class="op">+</span><span class="st"> </span>class2 <span class="op">+</span><span class="st"> </span>class3,<span class="dt">data=</span>Dmale)</span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="kw">stargazer</span>(reg1,reg2,reg3,<span class="dt">type=</span><span class="st">&quot;html&quot;</span>)</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="3">
+S
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+<td>
+(3)
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+AgeMinus18
+</td>
+<td>
+-0.007<sup>***</sup>
+</td>
+<td>
+-0.005<sup>***</sup>
+</td>
+<td>
+-0.036<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.001)
+</td>
+<td>
+(0.001)
+</td>
+<td>
+(0.007)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+adult
+</td>
+<td>
+</td>
+<td>
+-0.110<sup>**</sup>
+</td>
+<td>
+0.147<sup>*</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+(0.056)
+</td>
+<td>
+(0.079)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+class2
+</td>
+<td>
+-0.277<sup>***</sup>
+</td>
+<td>
+-0.267<sup>***</sup>
+</td>
+<td>
+-0.265<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.046)
+</td>
+<td>
+(0.046)
+</td>
+<td>
+(0.045)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+class3
+</td>
+<td>
+-0.288<sup>***</sup>
+</td>
+<td>
+-0.278<sup>***</sup>
+</td>
+<td>
+-0.259<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.042)
+</td>
+<td>
+(0.042)
+</td>
+<td>
+(0.041)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+AgeMinus18:adult
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+0.032<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+(0.007)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+0.513<sup>***</sup>
+</td>
+<td>
+0.582<sup>***</sup>
+</td>
+<td>
+0.294<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.041)
+</td>
+<td>
+(0.054)
+</td>
+<td>
+(0.083)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+658
+</td>
+<td>
+658
+</td>
+<td>
+658
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+R<sup>2</sup>
+</td>
+<td>
+0.090
+</td>
+<td>
+0.095
+</td>
+<td>
+0.123
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Adjusted R<sup>2</sup>
+</td>
+<td>
+0.086
+</td>
+<td>
+0.090
+</td>
+<td>
+0.117
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Residual Std. Error
+</td>
+<td>
+0.386 (df = 654)
+</td>
+<td>
+0.386 (df = 653)
+</td>
+<td>
+0.380 (df = 652)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+F Statistic
+</td>
+<td>
+21.563<sup>***</sup> (df = 3; 654)
+</td>
+<td>
+17.228<sup>***</sup> (df = 4; 653)
+</td>
+<td>
+18.340<sup>***</sup> (df = 5; 652)
+</td>
+</tr>
+<tr>
+<td colspan="4" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="3" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fitted&lt;-(reg3<span class="op">$</span>fitted.values)</span>
+<span id="cb7-2"><a href="#cb7-2"></a>(</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="kw">ggplot</span>(<span class="dt">data=</span><span class="kw">data.frame</span>(fitted),<span class="kw">aes</span>(<span class="dt">x=</span>fitted))</span>
+<span id="cb7-4"><a href="#cb7-4"></a>  <span class="op">+</span><span class="kw">geom_histogram</span>(<span class="dt">bins=</span><span class="dv">20</span>)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="op">+</span><span class="kw">geom_vline</span>(<span class="dt">xintercept=</span><span class="dv">0</span>)</span>
+<span id="cb7-7"><a href="#cb7-7"></a>)</span></code></pre></div>
+<p><img src="Notes2021_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>probit1&lt;-<span class="kw">glm</span>(S <span class="op">~</span><span class="st"> </span>AgeMinus18 <span class="op">+</span><span class="st"> </span>class2<span class="op">+</span>class3,<span class="dt">data=</span>Dmale,<span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&quot;probit&quot;</span>))</span>
+<span id="cb8-2"><a href="#cb8-2"></a>probit2&lt;-<span class="kw">glm</span>(S <span class="op">~</span><span class="st"> </span>AgeMinus18<span class="op">+</span>adult<span class="op">*</span>(AgeMinus18) <span class="op">+</span><span class="st"> </span>adult<span class="op">+</span><span class="st"> </span>class2<span class="op">+</span>class3,<span class="dt">data=</span>Dmale,<span class="dt">family=</span><span class="kw">binomial</span>(<span class="dt">link=</span><span class="st">&quot;probit&quot;</span>))</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="kw">stargazer</span>(probit1,probit2,<span class="dt">type=</span><span class="st">&quot;html&quot;</span>)</span></code></pre></div>
+<table style="text-align:center">
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+<em>Dependent variable:</em>
+</td>
+</tr>
+<tr>
+<td>
+</td>
+<td colspan="2" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2">
+S
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(1)
+</td>
+<td>
+(2)
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+AgeMinus18
+</td>
+<td>
+-0.027<sup>***</sup>
+</td>
+<td>
+-0.113<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.005)
+</td>
+<td>
+(0.027)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+adult
+</td>
+<td>
+</td>
+<td>
+0.550<sup>*</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+(0.325)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+class2
+</td>
+<td>
+-1.014<sup>***</sup>
+</td>
+<td>
+-0.985<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.178)
+</td>
+<td>
+(0.181)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+class3
+</td>
+<td>
+-0.999<sup>***</sup>
+</td>
+<td>
+-0.906<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.156)
+</td>
+<td>
+(0.157)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+AgeMinus18:adult
+</td>
+<td>
+</td>
+<td>
+0.096<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+(0.027)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Constant
+</td>
+<td>
+0.217
+</td>
+<td>
+-0.554<sup>*</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+(0.150)
+</td>
+<td>
+(0.334)
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Observations
+</td>
+<td>
+658
+</td>
+<td>
+658
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Log Likelihood
+</td>
+<td>
+-304.351
+</td>
+<td>
+-296.947
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Akaike Inf. Crit.
+</td>
+<td>
+616.702
+</td>
+<td>
+605.894
+</td>
+</tr>
+<tr>
+<td colspan="3" style="border-bottom: 1px solid black">
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+<em>Note:</em>
+</td>
+<td colspan="2" style="text-align:right">
+<sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
+</td>
+</tr>
+</table>
 </div>
 </div>
             </section>
