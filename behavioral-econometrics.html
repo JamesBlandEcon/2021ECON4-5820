@@ -21,7 +21,7 @@
   
   
 
-<meta name="author" content="James Bland" />
+<meta name="author" content="James Bland &amp; Jory Manis" />
 
 
 
@@ -133,6 +133,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul class="summary">
 <li class="chapter" data-level="1" data-path=""><a href="#behavioral-econometrics"><i class="fa fa-check"></i><b>1</b> Behavioral econometrics</a><ul>
 <li class="chapter" data-level="1.1" data-path=""><a href="#example-dataset"><i class="fa fa-check"></i><b>1.1</b> Example dataset</a></li>
+<li class="chapter" data-level="1.2" data-path=""><a href="#risk-neutral"><i class="fa fa-check"></i><b>1.2</b> Risk neutral</a></li>
 </ul></li>
 </ul>
 
@@ -153,8 +154,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="header">
 <h1 class="title">Econometrics II Notes 2021 (5820)</h1>
-<p class="author"><em>James Bland</em></p>
-<p class="date"><em>1/20/2021</em></p>
+<p class="author"><em>James Bland &amp; Jory Manis</em></p>
+<p class="date"><em>Fall 2021</em></p>
 </div>
 <div id="behavioral-econometrics" class="section level1">
 <h1><span class="header-section-number">1</span> Behavioral econometrics</h1>
@@ -265,6 +266,82 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li>decisions over 2 lotteries. <span class="math inline">\(p\)</span> or <span class="math inline">\(q\)</span></li>
 <li><span class="math inline">\(y=1\)</span> iff <span class="math inline">\(i\)</span> chooses the q-lottery in decision <span class="math inline">\(t\)</span></li>
 <li>prizes: 0, 25, 50, 75 pounds</li>
+</ul>
+</div>
+<div id="risk-neutral" class="section level2">
+<h2><span class="header-section-number">1.2</span> Risk neutral</h2>
+<p>Maximization problem
+<span class="math display">\[
+\max_l\{E[u(X\mid l)]\}
+\]</span></p>
+<p>Probabilistic choice function. Given choice set <span class="math inline">\(\mathbb A\)</span> (softmax)
+<span class="math display">\[
+\Pr\left(l\right)\propto \exp\left(\lambda E[u(x)\mid l]\right)
+\]</span></p>
+<ul>
+<li>As the utility of one action increases, I am more likely to take it.</li>
+<li>Interpretations
+<ul>
+<li>I make mistakes, but I recognize big payoff differences better than small ones</li>
+<li>There is a random component to my utility (observed by the decision-maker but not econometrician)</li>
+<li>There is a component of my utility that is not modeled well by <span class="math inline">\(E[u(x)\mid l]\)</span></li>
+</ul></li>
+</ul>
+<p>Since we have only 2 choices, this becomes:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\Pr(y=1\mid p,q)&amp;=\frac{\exp(\lambda E[u(x)\mid q])}{\exp(\lambda E[u(x)\mid q])+\exp(\lambda E[u(x)\mid p])}\\
+&amp;=\left(1+\exp\left(\lambda\left(E[u(x)\mid p]-E[u(x)\mid q]\right)\right)\right)^{-1}
+\end{aligned}
+\]</span></p>
+<p>log-likeihood function:
+<span class="math display">\[
+\mathcal L(\theta)=\sum_{t=1}^T\Pr(y_t\mid p_y,q_t)
+\]</span></p>
+<p>For risk-neutral: <span class="math inline">\(u(x)=x\)</span></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(dplyr)</span></code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>D&lt;-(Hey2001</span>
+<span id="cb6-2"><a href="#cb6-2"></a>    <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">EVq =</span> <span class="dv">0</span><span class="op">*</span>q1<span class="op">+</span><span class="dv">25</span><span class="op">*</span>q2<span class="op">+</span><span class="dv">50</span><span class="op">*</span>q3<span class="op">+</span><span class="dv">75</span><span class="op">*</span>q4,</span>
+<span id="cb6-3"><a href="#cb6-3"></a>               <span class="dt">EVp =</span> <span class="dv">0</span><span class="op">*</span>p1<span class="op">+</span><span class="dv">25</span><span class="op">*</span>p2<span class="op">+</span><span class="dv">50</span><span class="op">*</span>p3<span class="op">+</span><span class="dv">75</span><span class="op">*</span>p4</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    )</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">DEV =</span> EVq<span class="op">-</span>EVp)</span>
+<span id="cb6-6"><a href="#cb6-6"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="kw">head</span>(D)</span></code></pre></div>
+<pre><code>##   id t q1 q2    q3    q4 p1    p2    p3    p4 y    EVq    EVp     DEV
+## 1  1 1  0  0 0.875 0.125  0 0.125 0.000 0.875 0 53.125 68.750 -15.625
+## 2  1 2  0  0 0.875 0.125  0 0.125 0.000 0.875 0 53.125 68.750 -15.625
+## 3  1 3  0  0 0.875 0.125  0 0.125 0.500 0.375 1 53.125 56.250  -3.125
+## 4  1 4  0  0 0.875 0.125  0 0.375 0.000 0.625 0 53.125 56.250  -3.125
+## 5  1 5  0  0 0.875 0.125  0 0.375 0.125 0.500 1 53.125 53.125   0.000
+## 6  1 6  0  0 0.875 0.125  0 0.375 0.250 0.375 1 53.125 50.000   3.125</code></pre>
+<p>Define and maximize likelihood:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>LL&lt;-<span class="cf">function</span>(lambda) {</span>
+<span id="cb8-2"><a href="#cb8-2"></a>  <span class="kw">sum</span>(<span class="op">-</span><span class="kw">log</span>(<span class="dv">1</span><span class="op">+</span><span class="kw">exp</span>((<span class="op">-</span><span class="dv">1</span>)<span class="op">^</span>D<span class="op">$</span>y<span class="op">*</span>lambda<span class="op">*</span>D<span class="op">$</span>DEV)))</span>
+<span id="cb8-3"><a href="#cb8-3"></a>}</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="kw">LL</span>(<span class="dv">1</span>)</span></code></pre></div>
+<pre><code>## [1] -41111.87</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>lambdaHat&lt;-<span class="st"> </span><span class="kw">optimize</span>(<span class="cf">function</span>(x) {<span class="op">-</span><span class="kw">LL</span>(x)}, <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="kw">print</span>(lambdaHat)</span></code></pre></div>
+<pre><code>## $minimum
+## [1] 0.1222217
+## 
+## $objective
+## [1] 15170.62</code></pre>
+<p>To do</p>
+<ul>
+<li>Put <span class="math inline">\(\lambda\)</span> into context, how can I interpret it?</li>
+<li>Estimate a <span class="math inline">\(\lambda_i\)</span> for every subject (split by ID)</li>
+<li>Add in risk aversion <span class="math inline">\(u(x)=x^r\)</span> (<span class="math inline">\(r&gt;0\)</span>)</li>
 </ul>
 </div>
 </div>

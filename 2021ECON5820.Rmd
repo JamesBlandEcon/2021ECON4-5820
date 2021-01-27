@@ -1,14 +1,14 @@
 ---
 title: "Econometrics II Notes 2021 (5820)"
-author: "James Bland"
-date: "1/20/2021"
+author: "James Bland & Jory Manis"
+date: "Fall 2021"
 output:
   bookdown::gitbook: default
 ---
 
 ```{r setup, include=FALSE}
 library(ggplot2)
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,cache=TRUE)
 ```
 
 # Behavioral econometrics
@@ -25,3 +25,78 @@ knitr::kable(head(Hey2001))
 * decisions over 2 lotteries. $p$ or $q$
 * $y=1$ iff $i$ chooses the q-lottery in decision $t$
 * prizes: 0, 25, 50, 75 pounds
+
+## Risk neutral
+
+Maximization problem
+$$
+\max_l\{E[u(X\mid l)]\}
+$$
+
+Probabilistic choice function. Given choice set $\mathbb A$ (softmax)
+$$
+\Pr\left(l\right)\propto \exp\left(\lambda E[u(x)\mid l]\right)
+$$
+
+
+
+* As the utility of one action increases, I am more likely to take it.
+* Interpretations
+  + I make mistakes, but I recognize big payoff differences better than small ones
+  + There is a random component to my utility (observed by the decision-maker but not econometrician)
+  + There is a component of my utility that is not modeled well by $E[u(x)\mid l]$
+  
+Since we have only 2 choices, this becomes:
+  
+$$
+\begin{aligned}
+\Pr(y=1\mid p,q)&=\frac{\exp(\lambda E[u(x)\mid q])}{\exp(\lambda E[u(x)\mid q])+\exp(\lambda E[u(x)\mid p])}\\
+&=\left(1+\exp\left(\lambda\left(E[u(x)\mid p]-E[u(x)\mid q]\right)\right)\right)^{-1}
+\end{aligned}
+$$
+
+log-likeihood function:
+$$
+\mathcal L(\theta)=\sum_{t=1}^T\Pr(y_t\mid p_y,q_t)
+$$
+
+For risk-neutral: $u(x)=x$
+
+
+```{r}
+
+library(dplyr)
+
+D<-(Hey2001
+    %>% mutate(EVq = 0*q1+25*q2+50*q3+75*q4,
+               EVp = 0*p1+25*p2+50*p3+75*p4
+    )
+    %>% mutate(DEV = EVq-EVp)
+)
+head(D)
+
+
+
+```
+
+
+Define and maximize likelihood:
+```{r}
+
+LL<-function(lambda) {
+  sum(-log(1+exp((-1)^D$y*lambda*D$DEV)))
+}
+
+LL(1)
+
+lambdaHat<- optimize(function(x) {-LL(x)}, c(0, 1))
+
+print(lambdaHat)
+
+```
+
+To do
+
+* Put $\lambda$ into context, how can I interpret it?
+* Estimate a $\lambda_i$ for every subject (split by ID)
+* Add in risk aversion $u(x)=x^r$ ($r>0$)
