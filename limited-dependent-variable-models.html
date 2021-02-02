@@ -135,6 +135,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="1.1" data-path=""><a href="#some-example-data"><i class="fa fa-check"></i><b>1.1</b> Some example data</a></li>
 <li class="chapter" data-level="1.2" data-path=""><a href="#analyzing-with-linear-regression"><i class="fa fa-check"></i><b>1.2</b> Analyzing with linear regression</a></li>
 <li class="chapter" data-level="1.3" data-path=""><a href="#focusing-on-males-only"><i class="fa fa-check"></i><b>1.3</b> Focusing on males only</a></li>
+<li class="chapter" data-level="1.4" data-path=""><a href="#maximizing-a-function"><i class="fa fa-check"></i><b>1.4</b> Maximizing a function</a></li>
 </ul></li>
 </ul>
 
@@ -1281,6 +1282,129 @@ Akaike Inf. Crit.
 </tr>
 </table>
 </div>
+<div id="maximizing-a-function" class="section level2">
+<h2><span class="header-section-number">1.4</span> Maximizing a function</h2>
+<p>Coin flips</p>
+<p><span class="math display">\[
+\begin{aligned}
+y_i&amp;\sim iid \mathrm{Bernoulli}(\theta)\\
+\mathcal L(\theta)&amp;=n_1\log\theta+n_0\log(1-\theta)\\
+\frac{\partial \mathcal L(\theta)}{\partial \theta}&amp;=\frac{n_1}{\theta}-\frac{n_0}{1-\theta}\\
+\frac{\partial^2\mathcal L(\theta)}{\partial \theta^2}&amp;=-\frac{n_1}{\theta^2}-\frac{n_0}{(1-\theta)^2}
+\end{aligned}
+\]</span>
+Newton’s method in general:
+<span class="math display">\[ 
+\begin{aligned}
+f(x)&amp;\approx f(x_0)+(x-x_0)f&#39;(x_0)+\frac12(x-x_0)^2f&#39;&#39;(x_0)\\
+\text{FOC: }0&amp;=f&#39;(x_0)+(x-x_0)f&#39;&#39;(x_0)\\
+x_{t+1}&amp;=x_t-\frac{f&#39;(x_t)}{f&#39;&#39;(x_t)}
+\end{aligned}
+\]</span></p>
+<p>In our example:
+<span class="math display">\[
+\begin{aligned}
+\theta_{t+1}&amp;=\theta_t+\frac{\frac{n_1}{\theta_{t}}+\frac{n_0}{1-\theta_{t}}}{\frac{n_1}{\theta_t^2}+\frac{n_0}{(1-\theta_t^2)}}
+\end{aligned}
+\]</span></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>theta0&lt;-<span class="fl">0.1</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a></span>
+<span id="cb9-3"><a href="#cb9-3"></a>n1&lt;-<span class="dv">1000</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a>n0&lt;-<span class="dv">400</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a>ThetaNext&lt;-<span class="cf">function</span>(t0,n1,n0) {</span>
+<span id="cb9-7"><a href="#cb9-7"></a>  numerator&lt;-n1<span class="op">/</span>t0 <span class="op">-</span><span class="st"> </span>n0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>t0)</span>
+<span id="cb9-8"><a href="#cb9-8"></a>  denominator&lt;-n1<span class="op">/</span>t0<span class="op">^</span><span class="dv">2</span><span class="op">+</span>n0<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>t0)<span class="op">^</span><span class="dv">2</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>  f&lt;-n1<span class="op">*</span><span class="kw">log</span>(t0)<span class="op">+</span>n0<span class="op">*</span><span class="kw">log</span>(<span class="dv">1</span><span class="op">-</span>t0)</span>
+<span id="cb9-10"><a href="#cb9-10"></a>  </span>
+<span id="cb9-11"><a href="#cb9-11"></a>  ThetaNext&lt;-t0<span class="op">+</span>numerator<span class="op">/</span>denominator</span>
+<span id="cb9-12"><a href="#cb9-12"></a>  </span>
+<span id="cb9-13"><a href="#cb9-13"></a>  <span class="kw">c</span>(ThetaNext,f,numerator,<span class="op">-</span>denominator)</span>
+<span id="cb9-14"><a href="#cb9-14"></a>}</span>
+<span id="cb9-15"><a href="#cb9-15"></a></span>
+<span id="cb9-16"><a href="#cb9-16"></a>THETA&lt;-<span class="kw">seq</span>(<span class="fl">0.001</span>,<span class="fl">0.999</span>,<span class="dt">length=</span><span class="dv">999</span>)</span>
+<span id="cb9-17"><a href="#cb9-17"></a></span>
+<span id="cb9-18"><a href="#cb9-18"></a>D&lt;-(<span class="kw">data.frame</span>(THETA)</span>
+<span id="cb9-19"><a href="#cb9-19"></a>    <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Likelihood =</span> n1<span class="op">*</span><span class="kw">log</span>(THETA)<span class="op">+</span>n0<span class="op">*</span><span class="kw">log</span>(<span class="dv">1</span><span class="op">-</span>THETA))</span>
+<span id="cb9-20"><a href="#cb9-20"></a>)</span>
+<span id="cb9-21"><a href="#cb9-21"></a></span>
+<span id="cb9-22"><a href="#cb9-22"></a>thetaNewton&lt;-theta0</span>
+<span id="cb9-23"><a href="#cb9-23"></a>derivatives&lt;-<span class="kw">c</span>()</span>
+<span id="cb9-24"><a href="#cb9-24"></a></span>
+<span id="cb9-25"><a href="#cb9-25"></a>ApproxFun&lt;-<span class="kw">data.frame</span>()</span>
+<span id="cb9-26"><a href="#cb9-26"></a></span>
+<span id="cb9-27"><a href="#cb9-27"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) {</span>
+<span id="cb9-28"><a href="#cb9-28"></a>  f&lt;-<span class="kw">ThetaNext</span>(theta0,n1,n0)</span>
+<span id="cb9-29"><a href="#cb9-29"></a>  </span>
+<span id="cb9-30"><a href="#cb9-30"></a>  x&lt;-THETA[<span class="kw">abs</span>(THETA<span class="op">-</span>theta0)<span class="op">&lt;=</span><span class="fl">0.2</span>]</span>
+<span id="cb9-31"><a href="#cb9-31"></a>  </span>
+<span id="cb9-32"><a href="#cb9-32"></a>  y&lt;-f[<span class="dv">2</span>]<span class="op">+</span>(x<span class="op">-</span>theta0)<span class="op">*</span>f[<span class="dv">3</span>]<span class="op">+</span><span class="fl">0.5</span><span class="op">*</span>(x<span class="op">-</span>theta0)<span class="op">^</span><span class="dv">2</span><span class="op">*</span>f[<span class="dv">4</span>]</span>
+<span id="cb9-33"><a href="#cb9-33"></a>  </span>
+<span id="cb9-34"><a href="#cb9-34"></a>  iteration&lt;-ii</span>
+<span id="cb9-35"><a href="#cb9-35"></a>  </span>
+<span id="cb9-36"><a href="#cb9-36"></a>  theta0&lt;-f[<span class="dv">1</span>]</span>
+<span id="cb9-37"><a href="#cb9-37"></a>  </span>
+<span id="cb9-38"><a href="#cb9-38"></a>  derivatives&lt;-f[<span class="dv">2</span><span class="op">:</span><span class="dv">4</span>]</span>
+<span id="cb9-39"><a href="#cb9-39"></a>  </span>
+<span id="cb9-40"><a href="#cb9-40"></a>  </span>
+<span id="cb9-41"><a href="#cb9-41"></a>  </span>
+<span id="cb9-42"><a href="#cb9-42"></a>  ApproxFun&lt;-<span class="kw">rbind</span>(ApproxFun,<span class="kw">data.frame</span>(x,y,iteration))</span>
+<span id="cb9-43"><a href="#cb9-43"></a>  </span>
+<span id="cb9-44"><a href="#cb9-44"></a>  </span>
+<span id="cb9-45"><a href="#cb9-45"></a>  thetaNewton&lt;-<span class="kw">c</span>(thetaNewton,theta0)</span>
+<span id="cb9-46"><a href="#cb9-46"></a>}</span>
+<span id="cb9-47"><a href="#cb9-47"></a></span>
+<span id="cb9-48"><a href="#cb9-48"></a>NewtonPoints&lt;-<span class="kw">data.frame</span>(thetaNewton)<span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Likelihood =</span> n1<span class="op">*</span><span class="kw">log</span>(thetaNewton)<span class="op">+</span>n0<span class="op">*</span><span class="kw">log</span>(<span class="dv">1</span><span class="op">-</span>thetaNewton))</span>
+<span id="cb9-49"><a href="#cb9-49"></a>NewtonPoints<span class="op">$</span>iteration&lt;-<span class="dv">0</span><span class="op">:</span>(<span class="kw">dim</span>(NewtonPoints)[<span class="dv">1</span>]<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb9-50"><a href="#cb9-50"></a></span>
+<span id="cb9-51"><a href="#cb9-51"></a></span>
+<span id="cb9-52"><a href="#cb9-52"></a></span>
+<span id="cb9-53"><a href="#cb9-53"></a>(<span class="kw">ggplot</span>(D,<span class="kw">aes</span>(<span class="dt">x=</span>THETA,<span class="dt">y=</span>Likelihood))</span>
+<span id="cb9-54"><a href="#cb9-54"></a>  <span class="op">+</span><span class="kw">geom_path</span>(<span class="dt">size=</span><span class="dv">1</span>)</span>
+<span id="cb9-55"><a href="#cb9-55"></a>  <span class="op">+</span><span class="kw">geom_point</span>(<span class="dt">data=</span>NewtonPoints,<span class="kw">aes</span>(<span class="dt">x=</span>thetaNewton,<span class="dt">y=</span>Likelihood))</span>
+<span id="cb9-56"><a href="#cb9-56"></a>  <span class="op">+</span><span class="kw">geom_path</span>(<span class="dt">data=</span>ApproxFun,<span class="kw">aes</span>(<span class="dt">x=</span>x,<span class="dt">y=</span>y,<span class="dt">group=</span>iteration),<span class="dt">color=</span><span class="st">&quot;red&quot;</span>)</span>
+<span id="cb9-57"><a href="#cb9-57"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb9-58"><a href="#cb9-58"></a>  <span class="op">+</span><span class="kw">ylim</span>(<span class="kw">c</span>(<span class="op">-</span><span class="dv">2000</span>,<span class="dv">0</span>))</span>
+<span id="cb9-59"><a href="#cb9-59"></a>  </span>
+<span id="cb9-60"><a href="#cb9-60"></a>)</span></code></pre></div>
+<p><img src="Notes2021_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Algorithm does not converge</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>n1&lt;-<span class="dv">1000</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>n0&lt;-<span class="dv">1</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a>theta0&lt;-<span class="fl">0.1</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a></span>
+<span id="cb10-6"><a href="#cb10-6"></a>thetaT&lt;-theta0</span>
+<span id="cb10-7"><a href="#cb10-7"></a></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) {</span>
+<span id="cb10-9"><a href="#cb10-9"></a>  f&lt;-<span class="kw">ThetaNext</span>(theta0,n1,n0)</span>
+<span id="cb10-10"><a href="#cb10-10"></a>  </span>
+<span id="cb10-11"><a href="#cb10-11"></a>  thetaT&lt;-<span class="kw">c</span>(thetaT,f[<span class="dv">1</span>])</span>
+<span id="cb10-12"><a href="#cb10-12"></a>  theta0&lt;-f[<span class="dv">1</span>]</span>
+<span id="cb10-13"><a href="#cb10-13"></a>}</span>
+<span id="cb10-14"><a href="#cb10-14"></a></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="kw">print</span>(thetaT)</span></code></pre></div>
+<pre><code>##  [1]   0.1000000   0.1999877   0.3999128   0.7993817   1.5831346   3.1589526
+##  [7]   6.3157689  12.6301282  25.2590785  50.5170741 101.0331084</code></pre>
+<p>Solution 1: don’t move as far as the algorithms suggests:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>theta0&lt;-<span class="fl">0.1</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a>n0&lt;-<span class="dv">10</span></span>
+<span id="cb12-4"><a href="#cb12-4"></a></span>
+<span id="cb12-5"><a href="#cb12-5"></a>thetaT&lt;-theta0</span>
+<span id="cb12-6"><a href="#cb12-6"></a>c&lt;-<span class="fl">0.1</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="dv">1000</span>) {</span>
+<span id="cb12-9"><a href="#cb12-9"></a>  f&lt;-<span class="kw">ThetaNext</span>(theta0,n1,n0)</span>
+<span id="cb12-10"><a href="#cb12-10"></a>  </span>
+<span id="cb12-11"><a href="#cb12-11"></a>  thetaNext&lt;-f[<span class="dv">1</span>]<span class="op">*</span>c <span class="op">+</span>theta0<span class="op">*</span>(<span class="dv">1</span><span class="op">-</span>c)</span>
+<span id="cb12-12"><a href="#cb12-12"></a>  theta0&lt;-thetaNext</span>
+<span id="cb12-13"><a href="#cb12-13"></a>  thetaT&lt;-<span class="kw">c</span>(thetaT ,thetaNext)</span>
+<span id="cb12-14"><a href="#cb12-14"></a>}</span>
+<span id="cb12-15"><a href="#cb12-15"></a></span>
+<span id="cb12-16"><a href="#cb12-16"></a><span class="kw">plot</span>(thetaT)</span></code></pre></div>
+<p><img src="Notes2021_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+</div>
 </div>
             </section>
 
@@ -1339,6 +1463,20 @@ gitbook.start({
 });
 </script>
 
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
 </body>
 
 </html>
