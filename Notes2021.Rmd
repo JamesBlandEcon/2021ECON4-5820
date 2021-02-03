@@ -113,6 +113,97 @@ probit2<-glm(S ~ AgeMinus18+adult*(AgeMinus18) + adult+ class2+class3,data=Dmale
 stargazer(probit1,probit2,type="html")
 ```
 
+## Marginal effects
+
+Our goal is to evaluate:
+$$
+\frac{\partial \Pr(Y_i=1\mid X)}{\partial X_k} = 
+\phi(\beta_0+\beta_1X_1+\beta_2X_2+\ldots)\beta_k
+$$
+### Average marginal effect
+$$
+\frac{1}{n}\sum_{i=1}^n\phi(\beta_0+\beta_1X_{1,i}+\beta_2X_{2,i}+\ldots)\beta_k
+$$
+```{r}
+library(mfx)
+Dmale<-Dmale %>% mutate(S = 1*(survived=="yes"))
+p1<-glm(S ~ AgeMinus18,data=Dmale,family=binomial(link="probit"))
+p1mfx<-probitmfx(formula=S~AgeMinus18, data=Dmale,atmean=FALSE)
+
+print(p1mfx)
+
+# replicate point estimate of these
+B<-p1$coefficients
+
+mfx<-dnorm(B[1]+Dmale$AgeMinus18*B[2])*B[2]
+print(mean(mfx,na.rm=TRUE))
+```
+
+### Marginal effect at the mean
+$$ \phi(\beta_0+\bar X_1\beta_1+\bar X_2\beta_2+\ldots)\beta_k  $$
+
+```{r}
+p1mfxatmean<-probitmfx(formula=S~AgeMinus18, data=Dmale,atmean=TRUE)
+
+print(p1mfxatmean)
+
+mfxatmean<-dnorm(B[1]+mean(Dmale$AgeMinus18,na.rm=TRUE)*B[2])*B[2]
+print(mfxatmean)
+```
+### Marginal effect of an interaction
+
+Continuous $X$, dummy $D$
+
+$$
+\begin{aligned}
+\Pr(Y_i=1\mid X,D)&=\Phi(\beta_0+\beta_1X+\beta_2D+\beta_3XD)\\
+\frac{\partial \Pr(Y_i=1\mid X,D)}{\partial X}&=\phi(\beta_0+\beta_1X+\beta_2D+\beta_3XD)(\beta_1+\beta_3D)\\
+&=\begin{cases}
+\phi(\beta_0+\beta_1X+\beta_2D+\beta_3XD)\beta_1 &\text{ if } D=0\\
+\phi(\beta_0+\beta_1X+\beta_2D+\beta_3XD)(\beta_1+\beta_3) &\text{ if } D=1
+\end{cases}
+\end{aligned}
+$$
+
+```{r}
+
+D<-D%>% mutate(S=1*(survived=="yes"),female=1*(sex=="female"),AgeMinus18=age-18)
+p2<-glm(S ~ AgeMinus18+AgeMinus18*female,data=D,family=binomial(link="probit"))
+print(p2)
+# average marginal effect of age
+B<-p2$coefficients
+
+mfx1<-mean(dnorm(B[1]+B[2]*D$Ageminus18+B[3]*D$female+B[4]*D$Ageminus18*D$female)*(B[2]+D$female*B[4]),na.rm=TRUE)
+
+print(mfx1)
+
+# let's see what the mfx package gives us
+
+
+mfxp2<-probitmfx(S ~ AgeMinus18+AgeMinus18*female,data=D,atmean=FALSE)
+mfxp2a<-probitmfx(S ~ AgeMinus18+AgeMinus18*as.factor(female),data=D,atmean=FALSE)
+print(mfxp2)
+print(mfxp2a)
+
+```
+
+These are different, neither of the mfx package options work.
+
+### Marginal effect for a dummy variable
+
+$$
+\begin{aligned}
+\Pr(Y_i=1\mid X,D)&=\Phi(\beta_0+\beta_1X + \beta_2D)
+\\
+\Phi(\beta_0+\beta_1X + \beta_2)-\Phi(\beta_0+\beta_1X)
+\end{aligned}
+$$
+```{r}
+p3<-glm(S ~ AgeMinus18+female,data=D,family=binomial(link="probit"))
+mfx3<-probitmfx(S ~ AgeMinus18+as.factor(female),data=D,atmean=FALSE)
+
+print(mfx3)
+```
 
 ## Maximizing a function
 
@@ -177,7 +268,7 @@ for (ii in 1:10) {
   
   y<-f[2]+(x-theta0)*f[3]+0.5*(x-theta0)^2*f[4]
   
-  iteration<-ii
+  iteration<-ii-1
   
   theta0<-f[1]
   
