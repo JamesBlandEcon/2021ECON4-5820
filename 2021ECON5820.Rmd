@@ -1,15 +1,4 @@
----
-title: "Econometrics II Notes 2021 (5820)"
-author: "James Bland & Jory Manis"
-date: "Fall 2021"
-output:
-  bookdown::gitbook: default
----
 
-```{r setup, include=FALSE}
-library(ggplot2)
-knitr::opts_chunk$set(echo = TRUE,cache=TRUE)
-```
 
 # Behavioral econometrics
 
@@ -17,6 +6,7 @@ knitr::opts_chunk$set(echo = TRUE,cache=TRUE)
 
 ```{r}
 library(foreign)
+library(ggplot2)
 Hey2001<- read.csv("../2021ECON5820/Hey2001.csv")
 
 knitr::kable(head(Hey2001))
