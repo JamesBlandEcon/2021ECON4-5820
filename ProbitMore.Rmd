@@ -1,0 +1,119 @@
+
+
+# MLE and hypothesis testing
+
+
+```{r}
+rm(list=ls()) 
+library(dplyr)
+
+D<-read.csv("Data/NFLFieldGoals1920scrape.csv") %>% data.frame()
+
+D %>% head() %>% knitr::kable()
+
+```
+
+```{r}
+library(ggplot2)
+
+D<-(D
+ %>% mutate(Y=1*(Good.=="Y"))   
+)
+
+(
+  ggplot(D,aes(x=Dist,y=Y))
+  +geom_point()
+)
+```
+
+Not so useful
+
+```{r}
+DSummary<-(D
+  %>% group_by(Dist)
+  %>% summarize(
+    Y = mean(Y),
+    n = n()
+  )
+)
+
+(
+  ggplot(DSummary)
+  +geom_point(alpha=0.7,aes(x=Dist,y=Y,size=n))
+  +geom_smooth(data=D,aes(x=Dist,y=Y,color="probit-linear"),method="glm", method.args=list(family=binomial(link="probit")),size=1,formula = "y~x")
+  +geom_smooth(data=D,aes(x=Dist,y=Y,color="probit-quadratic"),method="glm", method.args=list(family=binomial(link="probit")),size=1,formula = "y~x+I(x^2)")
+  +stat_ecdf(data=D,aes(x=Dist))
+  +theme_bw()
+)
+```
+
+```{r,results="asis"}
+library(stargazer)
+m1<-glm(data=D,Y~1,family=binomial(link="probit"))
+m2<-glm(data=D,Y~Dist,family=binomial(link="probit"))
+m3<-glm(data=D,Y~Dist+ I(Dist^2),family=binomial(link="probit"))
+
+
+stargazer(m1,m2,m3,type="html")
+```
+
+Likelihood ratio test:
+$$
+H_0: \ \text{distance does not affect accuracy},\quad H_A:\ \text{distance  affects accuracy}\\
+H_0:\ \beta_\text{Dist}=0,\quad \beta_\text{Dist}\neq0
+$$
+
+In general:
+$$
+2(LL_U-LL_R)\xrightarrow[]{d}\chi^2(r)
+$$
+where $r$ is the number of restrictions $H_0$ imposes. Note that if $X\sim N(0,1)$ then $X^2\sim \chi^2(1)$, and in general $\sum_{k=1}^K X^2_k \sim \chi^2(K)$ 
+
+1. Compare models 1 and 2:
+$$
+H_0:\ \Pr(Y=1)=\Phi(\beta_0),\quad H_A:\ \Pr(Y=1\mid D) =\Phi(\beta_0+\beta_1D)
+$$
+```{r}
+LLU<-logLik(m2)
+LLR<-logLik(m1)
+
+LR <- 2*(LLU-LLR)
+
+print(LR)
+
+print(paste("Critical Value",qchisq(0.95,1)))
+```
+
+
+2. Compare models 1 and 3:
+$$
+H_0:\ \Pr(Y=1)=\Phi(\beta_0),\quad H_A:\ \Pr(Y=1\mid D) =\Phi(\beta_0+\beta_1D+\beta_2D^2)
+$$
+```{r}
+LLU<-logLik(m3)
+LLR<-logLik(m1)
+
+LR <- 2*(LLU-LLR)
+
+print(LR)
+
+print(paste("Critical Value",qchisq(0.95,2)))
+```
+
+
+3. Compare models 2 and 3:
+$$
+H_0:\ \Pr(Y=1)=\Phi(\beta_0+\beta_1D),\quad H_A:\ \Pr(Y=1\mid D) =\Phi(\beta_0+\beta_1D+\beta_2D^2)
+$$
+```{r}
+LLU<-logLik(m3)
+LLR<-logLik(m2)
+
+LR <- 2*(LLU-LLR)
+
+print(LR)
+
+print(paste("Critical Value",qchisq(0.95,1)))
+```
+
+

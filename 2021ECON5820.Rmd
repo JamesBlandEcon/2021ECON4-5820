@@ -14,7 +14,7 @@ knitr::kable(head(Hey2001))
 
 * decisions over 2 lotteries. $p$ or $q$
 * $y=1$ iff $i$ chooses the q-lottery in decision $t$
-* prizes: 0, 25, 50, 75 pounds
+* prizes: 0, 50, 100, 150 pounds
 
 ## Risk neutral
 
@@ -58,8 +58,8 @@ For risk-neutral: $u(x)=x$
 library(dplyr)
 
 D<-(Hey2001
-    %>% mutate(EVq = 0*q1+25*q2+50*q3+75*q4,
-               EVp = 0*p1+25*p2+50*p3+75*p4
+    %>% mutate(EVq = 0*q1+50*q2+100*q3+150*q4,
+               EVp = 0*p1+50*p2+100*p3+150*p4
     )
     %>% mutate(DEV = EVq-EVp)
 )
@@ -73,20 +73,83 @@ head(D)
 Define and maximize likelihood:
 ```{r}
 
-LL<-function(lambda) {
-  sum(-log(1+exp((-1)^D$y*lambda*D$DEV)))
+LL<-function(lambda,DEV,y) {
+  # somthing in here to change DEV to DEU
+  sum(-log(1+exp((-1)^y*lambda*DEV)))
 }
 
-LL(1)
+LL(1,D$DEV,D$y)
 
-lambdaHat<- optimize(function(x) {-LL(x)}, c(0, 1))
+lambdaHat<- optimize(function(x) {-LL(x,D$DEV,D$y)}, c(0, 1))
 
 print(lambdaHat)
 
 ```
 
-To do
+## Estimate a $\lambda_i$ for every subject (split by ID)
+```{r}
+lambdaHat<-function(DEV,y) {
+  optimize(function(x) {-LL(x,DEV,y)}, c(0, 1))$minimum
+}
 
-* Put $\lambda$ into context, how can I interpret it?
-* Estimate a $\lambda_i$ for every subject (split by ID)
-* Add in risk aversion $u(x)=x^r$ ($r>0$)
+print(lambdaHat(D$DEV,D$y))
+
+LambdaHatEstimates<-(D
+                     %>% group_by(id)
+                     %>% summarize(lhat = lambdaHat(DEV,y)))
+
+
+LambdaHatEstimates %>% head() %>% knitr::kable()
+
+(
+  ggplot(LambdaHatEstimates,aes(x=lhat))
+  +stat_ecdf()
+)
+```
+
+In context:
+$$
+\Pr(\text{chooses y to max DEV})=(1+\exp(-\lambda |\mathrm{DEV}|)^{-1}
+$$
+on average, a subject will choose the "right" action with probability
+$$
+\frac{1}{T}\sum_{t=1}^T(1+\exp(-\lambda |\mathrm{DEV}_t|)^{-1}
+$$
+```{r}
+LogitResponse<-function(l,DEV) {
+  mean(1/(1+exp(-l*abs(DEV))))
+}
+EVloss<-function(l,DEV) {
+  p<-(1/(1+exp(-l*abs(DEV))))
+  
+  mean(p*0+(1-p)*abs(DEV))
+}
+
+
+LambdaHatEstimates<-(D
+  %>% left_join(LambdaHatEstimates,by="id")
+  %>% group_by(id)
+  %>% summarize(PrHat = LogitResponse(lhat,DEV),
+                EVloss = EVloss(lhat,DEV),
+                lhat = mean(lhat))
+)
+
+LambdaHatEstimates %>% head() %>% knitr::kable()
+
+(
+  ggplot(LambdaHatEstimates,aes(x=PrHat))+stat_ecdf()
+)
+
+(
+  ggplot()
+  +stat_ecdf(data=LambdaHatEstimates,aes(x=EVloss,color="Estimated expected loss"))
+  +stat_ecdf(data=D %>% filter(id==1),aes(x=abs(DEV),color="Theoretical max"))
+  +xlab("Expected loss relative to EV-maximizing (pounds)")
+)
+
+```
+
+## To do
+
+
+* Add in risk aversion $u(x)=x^r$ ($r>0$). *suggestion* Estimate $\log r$ and $\log \lambda$ directly, then transform

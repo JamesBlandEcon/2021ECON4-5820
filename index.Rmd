@@ -11,6 +11,8 @@ library(ggplot2)
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE,message=FALSE,cache=TRUE)
 ```
 
-```{r,child=c("CH12Probit.Rmd","2021ECON5820.Rmd")}
+# {-}
+
+```{r,child=c("CH12Probit.Rmd","ProbitMore.Rmd","TimeSeries.Rmd","2021ECON5820.Rmd")}
 
 ```

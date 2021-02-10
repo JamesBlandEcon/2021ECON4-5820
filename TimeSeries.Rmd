@@ -1,0 +1,154 @@
+
+
+# Time series, prediction, and forecasting
+
+For most of this section, we will draw from material in Bailey's *Real Econometrics*, Chapter 14 of my supplementary material, and:
+
+> Hyndman, R.J., & Athanasopoulos, G. (2018) [Forecasting: principles and practice](https://otexts.com/fpp2/), 2nd edition, OTexts: Melbourne, Australia.
+
+
+## Introduction
+
+Up to this point we have almost exclusively focused on estimating causal effects. While we will by no means ignore this altogether in this section, we will also have an added focus on prediction and forecasting. That is, since we have data on more than one time period, it is natural that we may want to make a prediction about something that happens *after* our sample is collected. As a motivating example, consider the following data on time series from the [US Energy Information Administration website](https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm)
+
+```{r,message=F,cache=T}
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+
+D<-(read.csv("Data/Weekly_Retail_Gasoline_and_Diesel_Prices.csv",skip=6)
+  %>% data.frame()   
+)
+colnames(D)<-c("Week","Price")
+
+D<-D %>% mutate(Week = mdy(Week)) %>% arrange(Week) %>% mutate(Month=month(Week))
+
+Dts<-ts(D,start=1995,frequency=52)
+
+knitr::kable(head(D))
+
+(
+  ggplot(D,aes(x=Week,y=Price))
+  +geom_line()
+  +xlab("Date (recorded weekly)")+ylab("Price (US$/gallon)")
+  +theme_bw()
+)
+
+```
+
+
+## Notation
+
+$$
+Y_t = \text{our outcome variable measured in time period }t
+$$
+$$
+Y_{t-1} = Y \text{ from one time period ago (1-period lag)}
+$$
+E.g. in linear regression:
+$$
+\begin{aligned}
+Y_t&= \beta_0+\beta_1Y_{t-1}+\epsilon_t\\
+E[Y_t\mid Y_{t-1}]&=\beta_0+\beta_1Y_{t-1}
+\end{aligned}
+$$
+
+$$
+Y_{t+1}=Y \text{ one time period into the future (1-period forward or lead)}
+$$
+
+## Building blocks
+
+**Autoregrssive model**
+
+$$
+Y_t=\beta_0+\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t\quad\text{AR(L)}
+$$
+
+e.g.:
+If $\beta_l=\frac1L$ (and $\beta_0=0$), then this is a moving-average forecast.
+
+**Moving average model**
+$$
+Y_t=\beta_0+\sum_{l=1}^L\gamma_l\epsilon_{t-l}+\epsilon_t \quad\text{MA(L)}
+$$
+**Autorgresive moving average model**
+$$
+Y_t=\beta_0+\sum_{l=1}^{L_1}\beta_lY_{t-l}+\sum_{l=1}^{L_2}\gamma_l\epsilon_{t-l}+\epsilon_t\quad \text{ARMA}(L_1,L_2)
+$$
+
+
+## Diagnostics
+
+### ACF and PACF
+
+**Autocorrelation function**
+$$
+R(\tau)=\frac{E[(Y_t-\mu)(Y_{t-\tau}-\mu)]}{V(Y_t)}
+$$
+
+For an AR process:
+$$
+\begin{align}
+Y_t&=\beta_0+\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t
+\end{align}
+$$
+
+1. Assume stationarity - $E(Y_t)$ does not depend on $t$
+$$
+\begin{align}
+E[Y_t]&=E\left[\beta_0+\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t\right]\\
+&=\beta_0+\sum_{l=1}^L\beta_lE[Y_{t-l}]+E[\epsilon_t]\\
+&=\beta_0+\sum_{l=1}^L\beta_lE[Y_{t}]+\underbrace{E[\epsilon_t]}_{=0}\quad\text{imposed stationarity here}\\
+&=\beta_0+E[Y_{t}]\sum_{l=1}^L\beta_l\\
+E[Y_t]\left(1-\sum_{l=1}^L\beta_l\right)&=\beta_0\\
+E[Y_t]&=\frac{\beta_0}{1-\sum_{l=1}^L\beta_l}
+\end{align}
+$$
+Simplifying for AR(1):
+$$
+E[Y_{t}]=\frac{\beta_0}{1-\beta_1}
+$$
+Problem if $|\beta_1|\geq 1$:
+E.g.:
+
+$$
+\begin{align}
+Y_t&=\beta_1Y_{t-1}+\epsilon_t\quad |\beta_1|>1\\
+E[Y_{t}\mid Y_{t-1}]&=\beta_1Y_{t-1}\\
+E[E[Y_{t}\mid Y_{t-1}]]&=E[\beta_1Y_{t-1}]\\
+E[Y_t]&=\beta_1E[Y_{t-1}]
+\end{align}
+$$
+
+2. Calculate covariance (assume $\beta_0=0\implies \mu=0$)
+
+$$
+\begin{aligned}
+E[(Y_t-\mu)(Y_{t-\tau}-\mu)]&=E[Y_tY_{t-\tau}]\\
+&=E\left[\left(\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t\right)Y_{t-\tau}\right]\\
+&=E\left[Y_{t-\tau}\sum_{l=1}^L\beta_lY_{t-l}+Y_{t-\tau}\epsilon_t\right]\\
+&=\sum_{l=1}^L\beta_lE[Y_{t-\tau}Y_{t-l}]+\underbrace{E[Y_{t-\tau}\epsilon_t]}_{=0}\\
+&=\sum_{l=1}^L\beta_lE[Y_{t-\tau}Y_{t-l}]\\
+&=\sum_{l=1}^L\beta_l\mathrm{cov}(Y_{t-\tau},Y_{t-l})
+\end{aligned}
+$$
+$$
+\begin{align}
+Y_0&=y_0\quad\text{(given)}\\
+Y_1&=\beta_1y_0+\epsilon_1\\
+Y_2&=\beta_1(\beta_1y_0+\epsilon_1)+\epsilon_2\\
+Y_3&=\beta_1\overbrace{(\beta_1\underbrace{(\beta_1y_0+\epsilon_1)}_{Y_1}+\epsilon_2)}^{Y_2}+\epsilon_3\\
+Y_t&=y_0\beta_1^t+ \sum_{l=0}^{t}\beta_1^{l}\epsilon_{t-l}
+\end{align}
+$$
+
+
+
+```{r}
+#GasACF<-acf(D$Price)
+#GasPACF<-pacf(D$Price)
+
+
+```

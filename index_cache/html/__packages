@@ -9,3 +9,5 @@ MASS
 betareg
 mfx
 foreign
+tidyr
+lubridate

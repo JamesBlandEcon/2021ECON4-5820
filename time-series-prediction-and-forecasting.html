@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 Time series, prediction, and forecasting | Econometrics II Notes 20201</title>
+  <meta name="description" content="3 Time series, prediction, and forecasting | Econometrics II Notes 20201" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 Time series, prediction, and forecasting | Econometrics II Notes 20201" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 Time series, prediction, and forecasting | Econometrics II Notes 20201" />
+  
+  
+  
+
+<meta name="author" content="James Bland" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="mle-and-hypothesis-testing.html"/>
+<link rel="next" href="behavioral-econometrics.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+
+
+<style type="text/css">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="section.html#section"></a></li>
+<li class="chapter" data-level="1" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html"><i class="fa fa-check"></i><b>1</b> Limited dependent variable models</a><ul>
+<li class="chapter" data-level="1.1" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#some-example-data"><i class="fa fa-check"></i><b>1.1</b> Some example data</a></li>
+<li class="chapter" data-level="1.2" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#analyzing-with-linear-regression"><i class="fa fa-check"></i><b>1.2</b> Analyzing with linear regression</a></li>
+<li class="chapter" data-level="1.3" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#focusing-on-males-only"><i class="fa fa-check"></i><b>1.3</b> Focusing on males only</a></li>
+<li class="chapter" data-level="1.4" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#marginal-effects"><i class="fa fa-check"></i><b>1.4</b> Marginal effects</a><ul>
+<li class="chapter" data-level="1.4.1" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#marginal-effect-at-the-mean"><i class="fa fa-check"></i><b>1.4.1</b> Marginal effect at the mean</a></li>
+<li class="chapter" data-level="1.4.2" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#marginal-effect-of-an-interaction"><i class="fa fa-check"></i><b>1.4.2</b> Marginal effect of an interaction</a></li>
+<li class="chapter" data-level="1.4.3" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#marginal-effect-for-a-dummy-variable"><i class="fa fa-check"></i><b>1.4.3</b> Marginal effect for a dummy variable</a></li>
+</ul></li>
+<li class="chapter" data-level="1.5" data-path="limited-dependent-variable-models.html"><a href="limited-dependent-variable-models.html#maximizing-a-function"><i class="fa fa-check"></i><b>1.5</b> Maximizing a function</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="mle-and-hypothesis-testing.html"><a href="mle-and-hypothesis-testing.html"><i class="fa fa-check"></i><b>2</b> MLE and hypothesis testing</a></li>
+<li class="chapter" data-level="3" data-path="time-series-prediction-and-forecasting.html"><a href="time-series-prediction-and-forecasting.html"><i class="fa fa-check"></i><b>3</b> Time series, prediction, and forecasting</a><ul>
+<li class="chapter" data-level="3.1" data-path="time-series-prediction-and-forecasting.html"><a href="time-series-prediction-and-forecasting.html#introduction"><i class="fa fa-check"></i><b>3.1</b> Introduction</a></li>
+<li class="chapter" data-level="3.2" data-path="time-series-prediction-and-forecasting.html"><a href="time-series-prediction-and-forecasting.html#notation"><i class="fa fa-check"></i><b>3.2</b> Notation</a></li>
+<li class="chapter" data-level="3.3" data-path="time-series-prediction-and-forecasting.html"><a href="time-series-prediction-and-forecasting.html#building-blocks"><i class="fa fa-check"></i><b>3.3</b> Building blocks</a></li>
+<li class="chapter" data-level="3.4" data-path="time-series-prediction-and-forecasting.html"><a href="time-series-prediction-and-forecasting.html#diagnostics"><i class="fa fa-check"></i><b>3.4</b> Diagnostics</a><ul>
+<li class="chapter" data-level="3.4.1" data-path="time-series-prediction-and-forecasting.html"><a href="time-series-prediction-and-forecasting.html#acf-and-pacf"><i class="fa fa-check"></i><b>3.4.1</b> ACF and PACF</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="behavioral-econometrics.html"><a href="behavioral-econometrics.html"><i class="fa fa-check"></i><b>4</b> Behavioral econometrics</a><ul>
+<li class="chapter" data-level="4.1" data-path="behavioral-econometrics.html"><a href="behavioral-econometrics.html#example-dataset"><i class="fa fa-check"></i><b>4.1</b> Example dataset</a></li>
+<li class="chapter" data-level="4.2" data-path="behavioral-econometrics.html"><a href="behavioral-econometrics.html#risk-neutral"><i class="fa fa-check"></i><b>4.2</b> Risk neutral</a></li>
+<li class="chapter" data-level="4.3" data-path="behavioral-econometrics.html"><a href="behavioral-econometrics.html#estimate-a-lambda_i-for-every-subject-split-by-id"><i class="fa fa-check"></i><b>4.3</b> Estimate a <span class="math inline">\(\lambda_i\)</span> for every subject (split by ID)</a></li>
+<li class="chapter" data-level="4.4" data-path="behavioral-econometrics.html"><a href="behavioral-econometrics.html#to-do"><i class="fa fa-check"></i><b>4.4</b> To do</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Econometrics II Notes 20201</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="time-series-prediction-and-forecasting" class="section level1">
+<h1><span class="header-section-number">3</span> Time series, prediction, and forecasting</h1>
+<p>For most of this section, we will draw from material in Bailey’s <em>Real Econometrics</em>, Chapter 14 of my supplementary material, and:</p>
+<blockquote>
+<p>Hyndman, R.J., &amp; Athanasopoulos, G. (2018) <a href="https://otexts.com/fpp2/">Forecasting: principles and practice</a>, 2nd edition, OTexts: Melbourne, Australia.</p>
+</blockquote>
+<div id="introduction" class="section level2">
+<h2><span class="header-section-number">3.1</span> Introduction</h2>
+<p>Up to this point we have almost exclusively focused on estimating causal effects. While we will by no means ignore this altogether in this section, we will also have an added focus on prediction and forecasting. That is, since we have data on more than one time period, it is natural that we may want to make a prediction about something that happens <em>after</em> our sample is collected. As a motivating example, consider the following data on time series from the <a href="https://www.eia.gov/dnav/pet/pet_pri_gnd_dcus_nus_w.htm">US Energy Information Administration website</a></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="time-series-prediction-and-forecasting.html#cb47-1"></a><span class="kw">library</span>(tidyr)</span>
+<span id="cb47-2"><a href="time-series-prediction-and-forecasting.html#cb47-2"></a><span class="kw">library</span>(dplyr)</span>
+<span id="cb47-3"><a href="time-series-prediction-and-forecasting.html#cb47-3"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb47-4"><a href="time-series-prediction-and-forecasting.html#cb47-4"></a><span class="kw">library</span>(lubridate)</span>
+<span id="cb47-5"><a href="time-series-prediction-and-forecasting.html#cb47-5"></a></span>
+<span id="cb47-6"><a href="time-series-prediction-and-forecasting.html#cb47-6"></a>D&lt;-(<span class="kw">read.csv</span>(<span class="st">&quot;Data/Weekly_Retail_Gasoline_and_Diesel_Prices.csv&quot;</span>,<span class="dt">skip=</span><span class="dv">6</span>)</span>
+<span id="cb47-7"><a href="time-series-prediction-and-forecasting.html#cb47-7"></a>  <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">data.frame</span>()   </span>
+<span id="cb47-8"><a href="time-series-prediction-and-forecasting.html#cb47-8"></a>)</span>
+<span id="cb47-9"><a href="time-series-prediction-and-forecasting.html#cb47-9"></a><span class="kw">colnames</span>(D)&lt;-<span class="kw">c</span>(<span class="st">&quot;Week&quot;</span>,<span class="st">&quot;Price&quot;</span>)</span>
+<span id="cb47-10"><a href="time-series-prediction-and-forecasting.html#cb47-10"></a></span>
+<span id="cb47-11"><a href="time-series-prediction-and-forecasting.html#cb47-11"></a>D&lt;-D <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Week =</span> <span class="kw">mdy</span>(Week)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">arrange</span>(Week) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Month=</span><span class="kw">month</span>(Week))</span>
+<span id="cb47-12"><a href="time-series-prediction-and-forecasting.html#cb47-12"></a></span>
+<span id="cb47-13"><a href="time-series-prediction-and-forecasting.html#cb47-13"></a>Dts&lt;-<span class="kw">ts</span>(D,<span class="dt">start=</span><span class="dv">1995</span>,<span class="dt">frequency=</span><span class="dv">52</span>)</span>
+<span id="cb47-14"><a href="time-series-prediction-and-forecasting.html#cb47-14"></a></span>
+<span id="cb47-15"><a href="time-series-prediction-and-forecasting.html#cb47-15"></a>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(D))</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Week</th>
+<th align="right">Price</th>
+<th align="right">Month</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1993-04-05</td>
+<td align="right">1.068</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="left">1993-04-12</td>
+<td align="right">1.079</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="left">1993-04-19</td>
+<td align="right">1.079</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="left">1993-04-26</td>
+<td align="right">1.086</td>
+<td align="right">4</td>
+</tr>
+<tr class="odd">
+<td align="left">1993-05-03</td>
+<td align="right">1.086</td>
+<td align="right">5</td>
+</tr>
+<tr class="even">
+<td align="left">1993-05-10</td>
+<td align="right">1.097</td>
+<td align="right">5</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="time-series-prediction-and-forecasting.html#cb48-1"></a>(</span>
+<span id="cb48-2"><a href="time-series-prediction-and-forecasting.html#cb48-2"></a>  <span class="kw">ggplot</span>(D,<span class="kw">aes</span>(<span class="dt">x=</span>Week,<span class="dt">y=</span>Price))</span>
+<span id="cb48-3"><a href="time-series-prediction-and-forecasting.html#cb48-3"></a>  <span class="op">+</span><span class="kw">geom_line</span>()</span>
+<span id="cb48-4"><a href="time-series-prediction-and-forecasting.html#cb48-4"></a>  <span class="op">+</span><span class="kw">xlab</span>(<span class="st">&quot;Date (recorded weekly)&quot;</span>)<span class="op">+</span><span class="kw">ylab</span>(<span class="st">&quot;Price (US$/gallon)&quot;</span>)</span>
+<span id="cb48-5"><a href="time-series-prediction-and-forecasting.html#cb48-5"></a>  <span class="op">+</span><span class="kw">theme_bw</span>()</span>
+<span id="cb48-6"><a href="time-series-prediction-and-forecasting.html#cb48-6"></a>)</span></code></pre></div>
+<p><img src="index_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+</div>
+<div id="notation" class="section level2">
+<h2><span class="header-section-number">3.2</span> Notation</h2>
+<p><span class="math display">\[
+Y_t = \text{our outcome variable measured in time period }t
+\]</span>
+<span class="math display">\[
+Y_{t-1} = Y \text{ from one time period ago (1-period lag)}
+\]</span>
+E.g. in linear regression:
+<span class="math display">\[
+\begin{aligned}
+Y_t&amp;= \beta_0+\beta_1Y_{t-1}+\epsilon_t\\
+E[Y_t\mid Y_{t-1}]&amp;=\beta_0+\beta_1Y_{t-1}
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[
+Y_{t+1}=Y \text{ one time period into the future (1-period forward or lead)}
+\]</span></p>
+</div>
+<div id="building-blocks" class="section level2">
+<h2><span class="header-section-number">3.3</span> Building blocks</h2>
+<p><strong>Autoregrssive model</strong></p>
+<p><span class="math display">\[
+Y_t=\beta_0+\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t\quad\text{AR(L)}
+\]</span></p>
+<p>e.g.:
+If <span class="math inline">\(\beta_l=\frac1L\)</span> (and <span class="math inline">\(\beta_0=0\)</span>), then this is a moving-average forecast.</p>
+<p><strong>Moving average model</strong>
+<span class="math display">\[
+Y_t=\beta_0+\sum_{l=1}^L\gamma_l\epsilon_{t-l}+\epsilon_t \quad\text{MA(L)}
+\]</span>
+<strong>Autorgresive moving average model</strong>
+<span class="math display">\[
+Y_t=\beta_0+\sum_{l=1}^{L_1}\beta_lY_{t-l}+\sum_{l=1}^{L_2}\gamma_l\epsilon_{t-l}+\epsilon_t\quad \text{ARMA}(L_1,L_2)
+\]</span></p>
+</div>
+<div id="diagnostics" class="section level2">
+<h2><span class="header-section-number">3.4</span> Diagnostics</h2>
+<div id="acf-and-pacf" class="section level3">
+<h3><span class="header-section-number">3.4.1</span> ACF and PACF</h3>
+<p><strong>Autocorrelation function</strong>
+<span class="math display">\[
+R(\tau)=\frac{E[(Y_t-\mu)(Y_{t-\tau}-\mu)]}{V(Y_t)}
+\]</span></p>
+<p>For an AR process:
+<span class="math display">\[
+\begin{align}
+Y_t&amp;=\beta_0+\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t
+\end{align}
+\]</span></p>
+<ol style="list-style-type: decimal">
+<li>Assume stationarity - <span class="math inline">\(E(Y_t)\)</span> does not depend on <span class="math inline">\(t\)</span>
+<span class="math display">\[
+\begin{align}
+E[Y_t]&amp;=E\left[\beta_0+\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t\right]\\
+&amp;=\beta_0+\sum_{l=1}^L\beta_lE[Y_{t-l}]+E[\epsilon_t]\\
+&amp;=\beta_0+\sum_{l=1}^L\beta_lE[Y_{t}]+\underbrace{E[\epsilon_t]}_{=0}\quad\text{imposed stationarity here}\\
+&amp;=\beta_0+E[Y_{t}]\sum_{l=1}^L\beta_l\\
+E[Y_t]\left(1-\sum_{l=1}^L\beta_l\right)&amp;=\beta_0\\
+E[Y_t]&amp;=\frac{\beta_0}{1-\sum_{l=1}^L\beta_l}
+\end{align}
+\]</span>
+Simplifying for AR(1):
+<span class="math display">\[
+E[Y_{t}]=\frac{\beta_0}{1-\beta_1}
+\]</span>
+Problem if <span class="math inline">\(|\beta_1|\geq 1\)</span>:
+E.g.:</li>
+</ol>
+<p><span class="math display">\[
+\begin{align}
+Y_t&amp;=\beta_1Y_{t-1}+\epsilon_t\quad |\beta_1|&gt;1\\
+E[Y_{t}\mid Y_{t-1}]&amp;=\beta_1Y_{t-1}\\
+E[E[Y_{t}\mid Y_{t-1}]]&amp;=E[\beta_1Y_{t-1}]\\
+E[Y_t]&amp;=\beta_1E[Y_{t-1}]
+\end{align}
+\]</span></p>
+<ol start="2" style="list-style-type: decimal">
+<li>Calculate covariance (assume <span class="math inline">\(\beta_0=0\implies \mu=0\)</span>)</li>
+</ol>
+<p><span class="math display">\[
+\begin{aligned}
+E[(Y_t-\mu)(Y_{t-\tau}-\mu)]&amp;=E[Y_tY_{t-\tau}]\\
+&amp;=E\left[\left(\sum_{l=1}^L\beta_lY_{t-l}+\epsilon_t\right)Y_{t-\tau}\right]\\
+&amp;=E\left[Y_{t-\tau}\sum_{l=1}^L\beta_lY_{t-l}+Y_{t-\tau}\epsilon_t\right]\\
+&amp;=\sum_{l=1}^L\beta_lE[Y_{t-\tau}Y_{t-l}]+\underbrace{E[Y_{t-\tau}\epsilon_t]}_{=0}\\
+&amp;=\sum_{l=1}^L\beta_lE[Y_{t-\tau}Y_{t-l}]\\
+&amp;=\sum_{l=1}^L\beta_l\mathrm{cov}(Y_{t-\tau},Y_{t-l})
+\end{aligned}
+\]</span>
+<span class="math display">\[
+\begin{align}
+Y_0&amp;=y_0\quad\text{(given)}\\
+Y_1&amp;=\beta_1y_0+\epsilon_1\\
+Y_2&amp;=\beta_1(\beta_1y_0+\epsilon_1)+\epsilon_2\\
+Y_3&amp;=\beta_1\overbrace{(\beta_1\underbrace{(\beta_1y_0+\epsilon_1)}_{Y_1}+\epsilon_2)}^{Y_2}+\epsilon_3\\
+Y_t&amp;=y_0\beta_1^t+ \sum_{l=0}^{t}\beta_1^{l}\epsilon_{t-l}
+\end{align}
+\]</span></p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb49-1"><a href="time-series-prediction-and-forecasting.html#cb49-1"></a><span class="co">#GasACF&lt;-acf(D$Price)</span></span>
+<span id="cb49-2"><a href="time-series-prediction-and-forecasting.html#cb49-2"></a><span class="co">#GasPACF&lt;-pacf(D$Price)</span></span></code></pre></div>
+</div>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="mle-and-hypothesis-testing.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="behavioral-econometrics.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
