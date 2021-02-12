@@ -116,4 +116,20 @@ print(LR)
 print(paste("Critical Value",qchisq(0.95,1)))
 ```
 
+## 2020 NFL season
+
+```{r}
+# source: http://nflsavant.com/about.php
+D2020<-read.csv("Data/pbp-2020.csv") %>% data.frame()
+
+print(colnames(D2020))
+
+FG2020<-D2020 %>% filter(grepl("YARD FIELD GOAL",Description))
+
+dim(FG2020)
+
+
+```
+
+
 

@@ -810,6 +810,40 @@ print(LR)</code></pre>
 <pre><code>## &#39;log Lik.&#39; 4.842615 (df=3)</code></pre>
 <pre class="r"><code>print(paste(&quot;Critical Value&quot;,qchisq(0.95,1)))</code></pre>
 <pre><code>## [1] &quot;Critical Value 3.84145882069412&quot;</code></pre>
+<div id="nfl-season" class="section level2">
+<h2>2020 NFL season</h2>
+<pre class="r"><code># source: http://nflsavant.com/about.php
+D2020&lt;-read.csv(&quot;Data/pbp-2020.csv&quot;) %&gt;% data.frame()
+
+print(colnames(D2020))</code></pre>
+<pre><code>##  [1] &quot;GameId&quot;                         &quot;GameDate&quot;                      
+##  [3] &quot;Quarter&quot;                        &quot;Minute&quot;                        
+##  [5] &quot;Second&quot;                         &quot;OffenseTeam&quot;                   
+##  [7] &quot;DefenseTeam&quot;                    &quot;Down&quot;                          
+##  [9] &quot;ToGo&quot;                           &quot;YardLine&quot;                      
+## [11] &quot;X&quot;                              &quot;SeriesFirstDown&quot;               
+## [13] &quot;X.1&quot;                            &quot;NextScore&quot;                     
+## [15] &quot;Description&quot;                    &quot;TeamWin&quot;                       
+## [17] &quot;X.2&quot;                            &quot;X.3&quot;                           
+## [19] &quot;SeasonYear&quot;                     &quot;Yards&quot;                         
+## [21] &quot;Formation&quot;                      &quot;PlayType&quot;                      
+## [23] &quot;IsRush&quot;                         &quot;IsPass&quot;                        
+## [25] &quot;IsIncomplete&quot;                   &quot;IsTouchdown&quot;                   
+## [27] &quot;PassType&quot;                       &quot;IsSack&quot;                        
+## [29] &quot;IsChallenge&quot;                    &quot;IsChallengeReversed&quot;           
+## [31] &quot;Challenger&quot;                     &quot;IsMeasurement&quot;                 
+## [33] &quot;IsInterception&quot;                 &quot;IsFumble&quot;                      
+## [35] &quot;IsPenalty&quot;                      &quot;IsTwoPointConversion&quot;          
+## [37] &quot;IsTwoPointConversionSuccessful&quot; &quot;RushDirection&quot;                 
+## [39] &quot;YardLineFixed&quot;                  &quot;YardLineDirection&quot;             
+## [41] &quot;IsPenaltyAccepted&quot;              &quot;PenaltyTeam&quot;                   
+## [43] &quot;IsNoPlay&quot;                       &quot;PenaltyType&quot;                   
+## [45] &quot;PenaltyYards&quot;</code></pre>
+<pre class="r"><code>FG2020&lt;-D2020 %&gt;% filter(grepl(&quot;YARD FIELD GOAL&quot;,Description))
+
+dim(FG2020)</code></pre>
+<pre><code>## [1] 970  45</code></pre>
+</div>
 </div>
 
 
