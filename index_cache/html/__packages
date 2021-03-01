@@ -1,6 +1,9 @@
 base
 ggplot2
+kableExtra
 dplyr
+tidyr
+stringr
 stargazer
 sandwich
 zoo
@@ -8,6 +11,6 @@ lmtest
 MASS
 betareg
 mfx
-foreign
-tidyr
 lubridate
+foreign
+latex2exp

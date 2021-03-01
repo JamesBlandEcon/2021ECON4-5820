@@ -149,7 +149,102 @@ LambdaHatEstimates %>% head() %>% knitr::kable()
 
 ```
 
-## To do
+## Adding in risk aversion
+
+Expected utility in vector form:
+$$
+\begin{aligned}
+u(x)&=(u(x_1),u(x_2),\ldots)\\
+p&=(p_1,p_2,p_3,p_4)\\
+q&=(q_1,q_2,q_3,q_4)\\
+E[u(X)\mid p]&=p^\top u(x)\\
+E[u(X)\mid q]&=q^\top u(x)\\
+DEU(u,p,q)&=(q-p)^\top u(x)
+\end{aligned}
+$$
+
+```{r}
+
+prizes<-c(0,50,100,150)
+
+LL<-function(params,p,q,y) {
+  r<-exp(params[1])
+  lambda<-exp(params[2])
+  
+  Ux<-as.matrix(prizes^r)
+  
+  
+  EUq<-as.matrix(q) %*% Ux
+  EUp<-as.matrix(p) %*% Ux
+  
+  
+  DEU<-EUq-EUp
+  
+  
+  sum(-log(1+exp((-1)^as.matrix(y)*lambda*DEU)))
+}
+
+p<-D%>% filter(id==1) %>% dplyr::select(p1:p4)
+q<-D%>% filter(id==1) %>% dplyr::select(q1:q4)
+y<-D %>% filter(id==1) %>% dplyr::select(y)
 
 
-* Add in risk aversion $u(x)=x^r$ ($r>0$). *suggestion* Estimate $\log r$ and $\log \lambda$ directly, then transform
+EUHat<-function(p,q,y) {
+  exp(optim(c(log(0.5),log(0.7)),function(x) {-LL(x,p,q,y)})$par)
+}
+
+Estimates<-(D
+                     %>% group_by(id)
+                     %>% summarize(rhat = EUHat(p,q,y)[1],
+                                   lhat = EUHat(p,q,y)[2])
+            )
+
+
+#Estimates %>% head() %>% knitr::kable()
+
+library(latex2exp)
+(
+  ggplot(Estimates,aes(x=rhat,y=lhat))+geom_point()
+  +theme_bw()
+  #+xlab(TeX("$\\hat r$"))+ylab(TeX("$\\hat\\lambda$"))
+   +ylim(c(0,exp(10)))
+  +scale_y_continuous(trans="log10")
+)
+
+
+```
+
+## Certainty equivalents: 
+
+Lottery induced by behaving according to parameters $r$ and $\lambda$
+$$
+\begin{aligned}
+\Pr(y_t=1\mid r,\lambda)&=(1+\exp(\lambda DEU_t(r)))^{-1}
+\end{aligned}
+$$
+Induced lottery for choice $t$:
+$$
+q_t\Pr(y_t=1\mid r,\lambda)+p_t\left(1-\Pr(y_t=1\mid r,\lambda)\right)
+$$
+what is the lottery of the entire experiment?
+$$
+L=\frac{1}{T}\sum_{i=1}^T\left(q_t\Pr(y_t=1\mid r,\lambda)+p_t\left(1-\Pr(y_t=1\mid r,\lambda)\right)\right)
+$$
+Expected utility of experiment:
+$$
+EU(\text{expt})=L^\top u(x)
+$$
+Certainty equivalent of an experiment:
+$$
+CE(\text{expt})=u^{-1}\left(EU(\text{expt})\right)
+$$
+
+From here, we can calculate:
+
+* How much is the experiment worth to someone who behaves according to $(r,\lambda)$?
+* How much *could* it be worth if we shut down the noise (i.e. $\lambda\to\infty$)?
+* How much was the experiment worth based on their actual choices?
+
+> Bland, J.R., 2020. Measuring and comparing two kinds of rationalizable opportunity cost in mixture models. Games, 11(1), p.1.
+
+> Alekseev, Aleksandr, Glenn W. Harrison, Morten Lau, and Don Ross. "[Deciphering the noise: the welfare costs of noisy behavior](https://cear.gsu.edu/files/2018/03/WP_2018_01_Deciphering-the-Noise-The-Welfare-Costs-of-Noisy-Behavior_2019_0326.pdf)." (2019).
