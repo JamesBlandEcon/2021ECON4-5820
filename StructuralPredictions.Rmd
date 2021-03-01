@@ -34,24 +34,27 @@ library(kableExtra)
 library(stringr)
 D<- (read.csv("Data/HowManyGames.csv")
   %>% filter(Period==20)     
-  %>% select(Subject,contains("chi"),contains("invest"))
+  %>% select(uid,contains("chi"),contains("invest"))
+  %>% mutate(ID = as.integer(as.factor(paste(uid))))
 )
+
+
 
 chi1<-c(2.25,2.75,2.35,5.50)
 chi2<-c(2.2,2.5,3.0,4.0)
 
 Part1<-(D 
-        %>% dplyr::select(Subject,contains("invest1"))
+        %>% dplyr::select(ID,contains("invest1"))
         %>% gather(x,invest,invest1_1:invest1_4)
         %>% mutate(instance = as.integer(str_sub(x,-1,-1)),
                    Part = "Part 1")
-        %>% select(Subject,invest,instance,Part)
+        %>% select(ID,invest,instance,Part)
         %>% mutate(chi = chi1[instance])
 )
 
 
 Part2<-(D 
-        %>% select(Subject,contains("invest2"))
+        %>% select(ID,contains("invest2"))
         %>% mutate(
           invest2_1=round(0.5*(invest2_1_1+invest2_2_1)),
           invest2_2=round(0.5*(invest2_1_2+invest2_2_2)),
@@ -63,7 +66,7 @@ Part2<-(D
         %>% mutate(instance = as.integer(str_sub(x,-1,-1)),
                    Part = "Part 2"
          )
-        %>% select(Subject,invest,instance,Part)
+        %>% select(ID,invest,instance,Part)
         %>% mutate(chi = chi2[instance])
         
 )
@@ -116,10 +119,11 @@ $$
 $$
 
 
-```{r,cache=TRUE}
+```{r,eval=F}
 getwd()
 library(rstan)
-options(mc.cores = parallel::detectCores())
+#options(mc.cores = parallel::detectCores())
+options(mc.cors = 4)
 rstan_options(auto_write = TRUE)
 
 
@@ -134,20 +138,29 @@ rstan_options(auto_write = TRUE)
   #real priorL[4];
 UseInvest<-Part1$invest+1
 UseInvest[UseInvest==101]<-100
- 
+
+
+InvestGrid<-seq(0,100,length=11)
+investL<-floor(Part1$invest/10)+1 
+investR<-ceiling(Part1$invest/10)+1
+investFrac<-(Part1$invest-investL*10)/10
 d<-list(
   N = dim(Part1)[1],
-  n = length(unique(Part1$Subject)),
-  invest = UseInvest,
+  n = length(unique(Part1$ID)),
+  investL = investL,
+  investR = investR,
+  investFrac=investFrac,
+  nInvestGrid=length(InvestGrid),
+  InvestGrid = InvestGrid,
   chi = Part1$chi,
   Part=1+1*(Part1$Part=="Part 1"),
   UseData=as.vector(matrix(1,dim(Part1)[1],1)),
-  ID=Part1$Subject,
-  priorR=c(log(0.3),0.2,log(0.1),0.2),
-  priorL=c(log(0.01),0.2,log(0.1),0.2)
+  ID=Part1$ID,
+  priorR=c(log(0.3),0.5,log(0.1),0.5),
+  priorL=c(log(0.01),0.5,log(0.1),0.5)
 ) 
   
-Fit<-stan("Bracketing.stan",data=d,control = list(adapt_delta = 0.999,max_treedepth=15))
+Fit<-stan("Bracketing.stan",data=d,control = list(adapt_delta = 0.99,max_treedepth=10))
 saveRDS(Fit,"StructuralPredictions.rds")
 ```
 
